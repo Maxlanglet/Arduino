@@ -5,13 +5,13 @@
 #include <FastLED.h>
 #include <math.h>
 
-#define LED_PIN     11
+#define LED_PIN     11 //Output pin on the arduino
 #define NUM_LEDS    60
 #define BRIGHTNESS  45
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 CRGB leds[NUM_LEDS];
-
+//Using FFT for frequency approximation
 arduinoFFT FFT = arduinoFFT();
 
 unsigned int sampling_period;
@@ -28,7 +28,7 @@ int micvalue2 = 0;
 CRGBPalette16 currentPalette;
 
 void setup() {
-  // put your setup code here, to run once:
+  // setup code
   delay( 3000 ); // power-up safety delay
   FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
   FastLED.setBrightness(  BRIGHTNESS );
@@ -45,7 +45,7 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  // detection of sounds every 10 ms
   //leds[1]=CRGB::YellowGreen;
   
   micvalue1 = analogRead(micpin);
@@ -53,6 +53,7 @@ void loop() {
   delay(10);
   micvalue2 = analogRead(micpin);
   //Serial.println(micvalue2);
+  //Fast Fourier Transform
   for(int i=0; i<samples;i++){
       microseconds = micros();
 
@@ -68,10 +69,11 @@ void loop() {
     double peak = FFT.MajorPeak(vReal,samples, sampling_frequency);
     //Serial.println(peak);
 
-    
+    //Shifting of every color to the next LED
     for(int i = NUM_LEDS - 1; i >= 1; i--) {
       leds[i] = leds[i - 1];
   }
+  //If sound is detected, we have an RGB color assigned to an LED based on peak
     if (micvalue2-micvalue1>1){
       leds[0]=CRGB(frequencytoRed(peak), frequencytoGreen(peak), frequencytoBlue(peak));
   //leds[i] += CRGB( 20, 0, 0);
@@ -83,7 +85,7 @@ void loop() {
     FastLED.show();
     delay(1);
 }
-
+//Functions from a double to a RGB color
 int frequencytoRed(double peak){
   if (peak>70 && peak <7000){
       return round((peak/10000)*255);
