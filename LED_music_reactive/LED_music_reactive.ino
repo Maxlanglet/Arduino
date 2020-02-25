@@ -21,6 +21,7 @@ double vReal[samples];
 double vIm[samples];
 
 int micpin = A0;
+int digitpin = 7;
 int ledpin = 11;
 int micvalue1 = 0;
 int micvalue2 = 0;
@@ -34,6 +35,7 @@ void setup() {
   FastLED.setBrightness(  BRIGHTNESS );
   pinMode(ledpin,OUTPUT);
   pinMode(micpin, INPUT);
+  pinMode(digitpin, INPUT);
   Serial.begin(9600);
   sampling_period = round(10000*(1/sampling_frequency));
 
@@ -48,10 +50,11 @@ void loop() {
   // detection of sounds every 10 ms
   //leds[1]=CRGB::YellowGreen;
   
-  micvalue1 = analogRead(micpin);
+  //micvalue1 = analogRead(micpin);
+  micvalue1 = digitalRead(micpin);//Works a little better sensibility wise with digital output
   //Serial.println(micvalue1);
   delay(10);
-  micvalue2 = analogRead(micpin);
+  //micvalue2 = analogRead(micpin);
   //Serial.println(micvalue2);
   //Fast Fourier Transform
   for(int i=0; i<samples;i++){
@@ -74,7 +77,7 @@ void loop() {
       leds[i] = leds[i - 1];
   }
   //If sound is detected, we have an RGB color assigned to an LED based on peak
-    if (micvalue2-micvalue1>1){
+    if (micvalue1==1){//micvalue2-micvalue1>1
       leds[0]=CRGB(frequencytoRed(peak), frequencytoGreen(peak), frequencytoBlue(peak));
   //leds[i] += CRGB( 20, 0, 0);
       
